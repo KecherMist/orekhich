@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── база: типографика макета Figma 28:256 ─────────────────────────── */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-ink;
+  }
+
+  ::selection {
+    @apply bg-caramel/20 text-ink;
+  }
+
+  :focus-visible {
+    outline: 2px solid #c1662f;
+    outline-offset: 2px;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  select {
+    appearance: none;
+  }
+}
+
+/* ── переиспользуемые блоки лавки ──────────────────────────────────── */
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-wrap px-6 md:px-10 lg:px-20;
+  }
+
+  .section {
+    @apply py-14 md:py-16 lg:py-[72px];
+  }
+
+  .eyebrow {
+    @apply text-[13px] font-semibold uppercase tracking-[0.14em] text-caramel;
+  }
+
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-pill px-6 py-3 text-[15px] font-bold transition duration-200 disabled:pointer-events-none disabled:opacity-45;
+  }
+
+  .btn-primary {
+    @apply bg-caramel text-cream shadow-pill transition hover:bg-caramel/90 active:translate-y-[1px];
+  }
+
+  .btn-ghost {
+    @apply border border-ink/20 text-ink transition hover:border-ink/40 hover:bg-ink/5;
+  }
+
+  .btn-light {
+    @apply border border-cream/25 bg-cream/10 text-darktext transition hover:bg-cream/20;
+  }
+
+  .card {
+    @apply rounded-card border border-hairline bg-card shadow-card;
+  }
+
+  .chip {
+    @apply inline-flex h-10 items-center gap-2 rounded-pill border border-hairline bg-card px-4 text-[14px] font-semibold text-muted transition hover:border-ink/30 hover:text-ink;
+  }
+
+  .chip-active {
+    @apply border-ink bg-ink text-cream hover:border-ink hover:text-cream;
+  }
+
+  .field {
+    @apply h-12 w-full rounded-pill border border-hairline bg-card px-5 text-[15px] text-ink transition placeholder:text-faint focus:border-caramel;
+  }
+
+  .field-flat {
+    @apply w-full rounded-[14px] border border-hairline bg-card px-4 py-3 text-[15px] leading-relaxed text-ink transition placeholder:text-faint focus:border-caramel;
+  }
+
+  .label {
+    @apply mb-1.5 block text-[12px] font-semibold uppercase tracking-[0.08em] text-muted;
+  }
+
+  .link-quiet {
+    @apply text-[14px] font-semibold text-muted underline-offset-4 transition hover:text-caramel hover:underline;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-[10px] bg-band;
+  }
+
+  .skeleton::after {
+    @apply absolute inset-0;
+    content: '';
+    background: linear-gradient(90deg, transparent, rgba(255, 253, 247, 0.75), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+}
+
+/* ── движение: мягкое, отключаемое по prefers-reduced-motion ────────── */
+@layer utilities {
+  .anim-float {
+    animation: float 7s ease-in-out infinite;
+  }
+
+  .anim-float-slow {
+    animation: float 9s ease-in-out infinite;
+  }
+
+  .anim-pop {
+    animation: pop 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.45);
+  }
+
+  .anim-fade {
+    animation: fade 0.24s ease-out both;
+  }
+
+  .anim-rise {
+    animation: rise 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .anim-drawer {
+    animation: drawer 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .anim-modal {
+    animation: modal 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .anim-toast {
+    animation: toast 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #e0d4c0 transparent;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawer {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes modal {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
