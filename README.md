@@ -19,7 +19,8 @@ nuts-shop/
 ├── .github/workflows/deploy.yml   сборка и публикация на GitHub Pages
 ├── DESIGN_SPEC.md                 спека фронтенда: токены из макета, структура, API-контракт
 ├── scripts/
-│   ├── deploy.sh                  детач-запуск полного стека на сервере
+│   ├── deploy.sh                  детач-запуск полного стека (API + статика)
+│   ├── deploy-pages.sh            публикация статики на GitHub Pages (ветка gh-pages)
 │   ├── export-snapshot.mjs        снимок SQLite → web/public/data/snapshot.json (для статики)
 │   └── serve-static.mjs           локальный предпросмотр статичной сборки на :8091
 ├── server/                        Express 4 + better-sqlite3 (ESM)
@@ -39,15 +40,20 @@ nuts-shop/
 ```
 
 ## Публикация на GitHub Pages
-Workflow `deploy.yml` собирается на push в `main`: `npm ci` в `web/` → `npm run build` с
-`VITE_BASE=/<repo>/` → `upload-pages-artifact` → `deploy-pages`. В репозитории один раз включается
-`Settings → Pages → Source: GitHub Actions`.
-
-Снимок каталога — обычный закоммиченный файл, обновляется локально:
+Сайт раздаётся с ветки `gh-pages` (настройки репозитория: `Settings → Pages → Source: gh-pages / root`).
+Публикация одним шагом:
+```bash
+bash scripts/deploy-pages.sh          # npm run build с VITE_BASE=/<repo>/ → push в gh-pages
+```
+Снимок каталога — обычный закоммитенный файл, обновляется локально:
 ```bash
 cd server && node ../scripts/export-snapshot.mjs
 ```
 Персональные промокоды и e-mail подписчиков в снимок не пишутся, только публичные промокоды.
+
+Автоматическая сборка на GitHub Actions лежит в `.github/workflows/deploy.yml` (вне git: токен gh без
+scope `workflow` не принимает push файлов workflows). Чтобы включить её: `$GH auth refresh-scopes -s workflow`,
+затем `git add -f .github && git commit && git push`, и в Settings → Pages выбрать `Source: GitHub Actions`.
 
 ## Запуск полного стека локально
 ```bash
