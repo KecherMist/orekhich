@@ -170,10 +170,15 @@ function seed() {
     const bySlug = {};
     for (const r of db.prepare('SELECT id, slug FROM products').all()) bySlug[r.slug] = r.id;
     for (const [slug, author, city, rating, text, status] of REVIEWS) insReview.run(bySlug[slug], author, city, rating, text, status);
-    const adminPass = process.env.ADMIN_PASS || 'oreh1ch-admin';
+    // Пароль админа не хранится в коде: берём ADMIN_PASS, иначе генерируем случайный
+    // и печатаем один раз при первом сиде.
+    const adminPass = process.env.ADMIN_PASS || crypto.randomBytes(12).toString('base64url');
     const { salt, hash } = hashPass(adminPass);
     db.prepare('INSERT OR IGNORE INTO admins (login, pass_hash, salt, name, role) VALUES (?,?,?,?,?)')
       .run(process.env.ADMIN_LOGIN || 'admin', hash, salt, 'Виталий', 'owner');
+    if (!process.env.ADMIN_PASS) {
+      console.log(`[seed] админ «${process.env.ADMIN_LOGIN || 'admin'}», пароль: ${adminPass} (сохрани, он показывается один раз)`);
+    }
   });
   tx();
   return true;
