@@ -11,3 +11,6 @@ server/data/secret.key
 tools/
 docs/*.png
 web/public/screenshots/
+
+# workflow требует scope `workflow` у токена — публикация через scripts/deploy-pages.sh
+.github/
