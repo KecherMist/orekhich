@@ -126,7 +126,12 @@ function approvedReviews(snap) {
 
 function allPromos(snap) {
   const local = readLS(LS.promos, []);
-  return [...snap.promokodes.map((p) => ({ ...p, used: false })), ...local];
+  // Промокод из снимка помечем использованным, если он уже сработал в этом браузере —
+  // как в живом режиме, где код после заказа привязывается к заказу.
+  return snap.promokodes.map((p) => {
+    const used = local.find((x) => normCode(x.code) === normCode(p.code));
+    return { ...p, used: Boolean(used?.used) };
+  }).concat(local.filter((p) => !snap.promokodes.some((s) => normCode(s.code) === normCode(p.code))));
 }
 
 function findPromo(snap, code) {
@@ -191,11 +196,13 @@ async function createOrder(snap, body) {
 
   let discount = 0;
   let promoCode = null;
+  let usedPromo = null;
   if (b.promocode) {
     const promo = findPromo(snap, b.promocode);
     if (!promo || promo.used) throw new StaticError('Промокод не найден или уже использован', 422);
     discount = round(cart.subtotal * promo.percent / 100);
     promoCode = normCode(promo.code);
+    usedPromo = promo;
   }
 
   const freeFrom = snap.config?.freeDeliveryFrom ?? 2500;
@@ -209,7 +216,7 @@ async function createOrder(snap, body) {
     const promos = readLS(LS.promos, []);
     const known = promos.find((p) => normCode(p.code) === promoCode);
     if (known) known.used = true;
-    else promos.push({ code: promoCode, percent: 15, kind: 'generic', used: true });
+    else promos.push({ code: promoCode, percent: usedPromo.percent, kind: usedPromo.kind ?? 'generic', used: true });
     writeLS(LS.promos, promos);
   }
 
@@ -296,7 +303,7 @@ function getReviews(snap, query) {
 async function createReview(body) {
   const b = body || {};
   const author = clean(b.author, 60);
-  const text = clean(b.text, 2000);
+  const text = clean(b.text, 900);
   const rating = Number(b.rating) || 0;
   if (author.length < 2) throw new StaticError('Укажите имя', 422);
   if (text.length < 20) throw new StaticError('Расскажите подробнее — минимум 20 символов', 422);
@@ -375,7 +382,7 @@ export async function staticApi(path, options = {}) {
 
   if (method === 'POST' && segments[0] === 'orders' && segments.length === 1) return createOrder(snap, body);
   if (method === 'POST' && segments[0] === 'promocode' && segments[1] === 'validate') return validatePromocode(snap, body);
-  if (method === 'POST' && segments[0] === 'subscribe') return subscribe(body);
+  if (method === 'POST' && segments[0] === 'subscribe') return subscribe(snap, body);
 
   throw new StaticError('В демо-режиме лавки этот запрос недоступен', 501);
 }

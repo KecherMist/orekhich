@@ -3,23 +3,24 @@ import { trackOrder } from '../lib/api.js'
 import { formatPrice, formatDate, cx } from '../lib/format.js'
 import { IconClock, IconAlert, IconCheck } from './Icons.jsx'
 
+// Ключи совпадают со статусами заказов в базе лавки: new → roast → packing → shipping → done.
 const STEPS = [
-  { key: 'new', label: 'Новый' },
-  { key: 'paid', label: 'Оплачен' },
+  { key: 'new', label: 'Заказ принят' },
   { key: 'roast', label: 'В обжарке' },
-  { key: 'packed', label: 'Упакован' },
-  { key: 'shipped', label: 'В пути' },
-  { key: 'delivered', label: 'Доставлен' },
+  { key: 'packing', label: 'Упакован' },
+  { key: 'shipping', label: 'В пути' },
+  { key: 'done', label: 'Доставлен' },
 ]
 
 const STATUS_ORDER = STEPS.map((step) => step.key)
+const STATUS_LABELS = { cancelled: 'Отменён' }
 
 const inputCls =
   'w-full rounded-tile border border-hairline bg-cream px-4 py-3 text-ink placeholder:text-faint focus-visible:ring-2 focus-visible:ring-caramel'
 
 function stepLabel(key) {
   const step = STEPS.find((item) => item.key === key)
-  return step ? step.label : key
+  return step ? step.label : (STATUS_LABELS[key] || key)
 }
 
 function reachedIndex(data) {
@@ -110,7 +111,7 @@ export default function TrackOrder({ number, onNumberChange }) {
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="font-semibold text-ink">Заказ {data.orderNumber || data.number || value.trim().toUpperCase()}</span>
-                <span className="rounded-pill bg-olive/10 px-3 py-1 text-sm font-semibold text-olive">{stepLabel(data.status)}</span>
+                <span className={cx('rounded-pill px-3 py-1 text-sm font-semibold', data.status === 'cancelled' ? 'bg-caramel/10 text-caramel' : 'bg-olive/10 text-olive')}>{stepLabel(data.status)}</span>
               </div>
 
               <ol className="mt-6 space-y-5">
@@ -126,7 +127,7 @@ export default function TrackOrder({ number, onNumberChange }) {
                       <span className="min-w-0">
                         <span className={cx('flex items-center gap-2 text-sm font-semibold', passed ? 'text-ink' : 'text-faint')}>
                           {step.label}
-                          {step.key === 'delivered' && passed && <IconCheck className="h-4 w-4 text-olive" />}
+                          {step.key === 'done' && passed && <IconCheck className="h-4 w-4 text-olive" />}
                         </span>
                         {entry?.note && <span className="mt-0.5 block text-sm text-muted">{entry.note}</span>}
                         {entry?.created_at && <span className="mt-0.5 block text-xs text-faint">{formatDate(entry.created_at)}</span>}
