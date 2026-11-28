@@ -3,7 +3,9 @@
 // снимка `data/snapshot.json`, а заказы, отзывы и подписки живут в localStorage браузера.
 // Формы ответов/ошибок совпадают с REST-контрактом server/src/api.js.
 
-const SNAPSHOT_URL = `${import.meta.env.BASE_URL || '/'}data/snapshot.json`;
+// BASE_URL подставляет Vite при сборке; в Node (тесты) его нет → падает на '/'.
+const BASE = (typeof import.meta.env !== 'undefined' && import.meta.env?.BASE_URL) || '/';
+const SNAPSHOT_URL = `${BASE}data/snapshot.json`;
 
 const LS = {
   orders: 'orekhich.static.orders',
@@ -77,7 +79,7 @@ export function loadSnapshot() {
 // Прям ли бэкенд? Если нет (GitHub Pages), переходим на статичный режим.
 export async function probeBackend(signal) {
   try {
-    const res = await fetch(`${import.meta.env.BASE_URL || '/'}api/health`, { signal, cache: 'no-cache' });
+    const res = await fetch(`${BASE}api/health`, { signal, cache: 'no-cache' });
     if (!res.ok) return false;
     const payload = await res.json().catch(() => null);
     return Boolean(payload && payload.ok);
